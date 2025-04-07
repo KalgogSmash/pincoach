@@ -3,6 +3,7 @@ import json
 import signal
 import sys
 import asyncio
+import pb_map_api
 from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
 
@@ -29,6 +30,33 @@ params = {
 #    print(f"Failed to fetch data: {response.status_code}")
 
 
+"""
+Sets the playing location for the user.
+"""
+async def set_playing_location(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Set the playing location for the user."""
+    # Extract the location from the command arguments
+    if context.args:
+        location = ' '.join(context.args)
+        region = "reno"
+        possible_location = pb_map_api.get_locations_in_region(region)
+        machines_at_location = []
+        # Find the closest location in the area that matches the user's input
+        for lc in possible_location:
+            if location.lower() in lc['name'].lower():
+                location = lc['name']
+                print (f"Location found: {location}")
+                machines_at_location = pb_map_api.get_machines_at_location(lc)
+                break
+
+        # Here you would typically save the location to a database or user profile
+        await context.bot.send_message(chat_id=update.effective_chat.id, text=f"Playing location set to: {location}")
+        #List the tables at the location
+        await context.bot.send_message(chat_id=update.effective_chat.id, text=f"Tables at {location}: {', '.join(machines_at_location)}")
+    else:
+        await context.bot.send_message(chat_id=update.effective_chat.id, text="Please provide a location.")
+
+
 async def hello(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Send a message when the command /hello is issued."""
     await context.bot.send_message(chat_id=update.effective_chat.id, text="Hello!")
@@ -41,6 +69,7 @@ def main():
     # Create a bot instance with the bot token
     app = ApplicationBuilder().token(bot_token).build()
     app.add_handler(CommandHandler("hello", hello))
+    app.add_handler(CommandHandler("location", set_playing_location))
 
     try:
         # Continuously poll for updates
