@@ -50,6 +50,19 @@ def build_practice_plan(duration):
         {"activity": "Cooldown/Free Play", "duration": cooldown_time}
     ]
 
+    ## Select random drills for the drill segment and pick a random table for each one 
+    if drill_time > 0:
+        # Select random drills from the drills list
+        selected_drills = random.sample(drills, min(2, drill_time // 10))
+        for drill in selected_drills:
+            # Pick a random table for each drill
+            table = pb_map_api.get_machines_at_location(play_location)
+            if table:
+                practice_plan[1]["drills"].append({"drill": drill, "table": random.choice(table)})
+            else:
+                print("No tables found at the selected location.")
+
+
     return practice_plan
 
 """
@@ -64,18 +77,24 @@ async def set_playing_location(update: Update, context: ContextTypes.DEFAULT_TYP
         location = ' '.join(context.args)
         possible_location = pb_map_api.get_locations_in_region(region)
         machines_at_location = []
+        found = False
+
         # Find the closest location in the area that matches the user's input
         for lc in possible_location:
             if location.lower() in lc['name'].lower():
                 play_location = lc
+                found = True
                 print (f"Location found: {play_location['name']}")
                 machines_at_location = pb_map_api.get_machines_at_location(play_location)
                 break
 
-        # Here you would typically save the location to a database or user profile
-        await context.bot.send_message(chat_id=update.effective_chat.id, text=f"Playing location set to: {play_location['name']}")
-        #List the tables at the location
-        await context.bot.send_message(chat_id=update.effective_chat.id, text=f"Tables at {location}:\n{',\n'.join(machines_at_location)}")
+        if found:
+            # Here you would typically save the location to a database or user profile
+            await context.bot.send_message(chat_id=update.effective_chat.id, text=f"Playing location set to: {play_location['name']}")
+            #List the tables at the location
+            await context.bot.send_message(chat_id=update.effective_chat.id, text=f"Tables at {location}:\n{',\n'.join(machines_at_location)}")
+        else:
+            await context.bot.send_message(chat_id=update.effective_chat.id, text="Location not found. Please try again.")
     else:
         await context.bot.send_message(chat_id=update.effective_chat.id, text="Please provide a location.")
 
@@ -114,7 +133,8 @@ async def report_practice_plan(update: Update, context: ContextTypes.DEFAULT_TYP
     for segment in practice_plan:
         message = f"{segment['activity']} for {segment['duration']} minutes"
         if 'drills' in segment:
-            message += "\nDrills: " + ', '.join(segment['drills'])
+            for drill in segment['drills']:
+                message += f"\n- Drill: {drill['drill']['name']} {drill['table']}. {drill['drill']['description']}"
         await context.bot.send_message(chat_id=update.effective_chat.id, text=message)
 
 async def pick_random_table(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -161,6 +181,7 @@ def main():
     app.add_handler(CommandHandler("location", set_playing_location))
     app.add_handler(CommandHandler("duration", set_playing_duration))
     app.add_handler(CommandHandler("random", pick_random_table))
+    app.add_handler(CommandHandler("generate", report_practice_plan))
 
     try:
         # Continuously poll for updates

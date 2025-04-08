@@ -1,32 +1,32 @@
 [
     {
-        "id": 1,
         "name": "Catching",
         "description": "Attempt to live or drop catch every ball that comes to the flippers.",
         "default_weight": 100
     },
     {
-        "id": 2,
         "name": "Nudging",
         "description": "Try to return the ball to a specific fliipper with only nudging.",
         "default_weight": 100
     },
     {
-        "id": 3,
         "name": "Ball Control",
         "description": "Only allowed to make shots from a ball that is controlled/cradled.",
         "default_weight": 100
     },
     {
-        "id": 4,
         "name": "Shielding",
         "description": "Focus on shielding drains coming from the left or right side of the playfield.",
         "default_weight": 100
     },
     {
-        "id": 5,
         "name": "Passing",
         "description": "Transfer the ball using a post pass if cradled, or perform a ski pass if the ball is rolling.",
+        "default_weight": 100
+    },
+    {
+        "name": "Accuracy",
+        "description": "Make a specific shot 5 times in a row, then move to the next shot.",
         "default_weight": 100
     }
 ]
