@@ -11,42 +11,27 @@ from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
 pin_map_base_url = "https://pinballmap.com"
 get_reno_locations = "/api/v1/region/reno/locations.json"  
 
-# Optionally, if the API requires parameters, you can define them here
-params = {
-    # Example: 'location_id': '123', or any other params the API might need
-    'region' : 'Reno, NV'
-}
-
-# Send a GET request to the API
-#response = requests.get(base_url)
-
-# Check if the request was successful (status code 200 means OK)
-#if response.status_code == 200:
-#    # Parse the JSON response
-#    data = response.json()
-
-#    print(json.dumps(data, indent=4))
-#else:
-#    print(f"Failed to fetch data: {response.status_code}")
-
+play_location = {}
+play_duration = 60 # Default play duration in minutes
 
 """
 Sets the playing location for the user.
 """
 async def set_playing_location(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    global play_location
+
     """Set the playing location for the user."""
     # Extract the location from the command arguments
     if context.args:
         location = ' '.join(context.args)
-        region = "reno"
         possible_location = pb_map_api.get_locations_in_region(region)
         machines_at_location = []
         # Find the closest location in the area that matches the user's input
         for lc in possible_location:
             if location.lower() in lc['name'].lower():
-                location = lc['name']
-                print (f"Location found: {location}")
-                machines_at_location = pb_map_api.get_machines_at_location(lc)
+                play_location = lc['name']
+                print (f"Location found: {play_location['name']}")
+                machines_at_location = pb_map_api.get_machines_at_location(play_location)
                 break
 
         # Here you would typically save the location to a database or user profile
@@ -56,20 +41,43 @@ async def set_playing_location(update: Update, context: ContextTypes.DEFAULT_TYP
     else:
         await context.bot.send_message(chat_id=update.effective_chat.id, text="Please provide a location.")
 
+"""Set the playing duration for the user."""
+async def set_playing_duration(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    global play_duration
 
-async def hello(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Send a message when the command /hello is issued."""
-    await context.bot.send_message(chat_id=update.effective_chat.id, text="Hello!")
+    """Set the playing duration for the user."""
+    # Extract the duration from the command arguments
+    if context.args:
+        try:
+            duration = int(context.args[0])
+            play_duration = duration
+            await context.bot.send_message(chat_id=update.effective_chat.id, text=f"Playing duration set to: {duration} minutes")
+        except ValueError:
+            await context.bot.send_message(chat_id=update.effective_chat.id, text="Please provide a valid number for the duration.")
+    else:
+        await context.bot.send_message(chat_id=update.effective_chat.id, text="Please provide a duration.")
+
+def load_default_drills():
+    # Load the default drills from drills.json
+    try:
+        with open('drills.json', 'r') as file:
+            drills = json.load(file)
+            return drills
+    except FileNotFoundError:
+        print("drills.json file not found. Please ensure it exists.")
+        return {}
 
 def main():
      # Read the bot token from the file
     with open('token.txt', 'r') as file:
         bot_token = file.read().strip()
 
+    load_default_drills
+
     # Create a bot instance with the bot token
     app = ApplicationBuilder().token(bot_token).build()
-    app.add_handler(CommandHandler("hello", hello))
     app.add_handler(CommandHandler("location", set_playing_location))
+    app.add_handler(CommandHandler("duration", set_playing_duration))
 
     try:
         # Continuously poll for updates
