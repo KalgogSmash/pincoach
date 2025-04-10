@@ -1,9 +1,12 @@
 import requests
 import json
 import sys
+import os
 import pb_map_api
 import random
-from telegram import Update
+import logging
+import asyncio
+from telegram import Update, Bot
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
 
 # Define the base URL for the API
@@ -102,6 +105,8 @@ async def set_playing_location(update: Update, context: ContextTypes.DEFAULT_TYP
 async def set_playing_duration(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     global play_duration
 
+    print("Setting playing duration...")
+
     # Extract the duration from the command arguments
     if context.args:
         try:
@@ -175,7 +180,21 @@ async def pick_random_table(update: Update, context: ContextTypes.DEFAULT_TYPE) 
     else:
         await context.bot.send_message(chat_id=update.effective_chat.id, text="No tables found at the selected location.")
 
+async def bot_testprint(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    print("Test print from bot.py")
+    # This function is just for testing purposes
+    await context.bot.send_message(chat_id=update.effective_chat.id, text="Test print from bot.py")
+
+
 def main():
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    
+    print("Pincoach bot running. Performing initialization...")
+
+    print("Current working directory:", os.getcwd())
+    print("drills.json exists?", os.path.exists('drills.json'))
+    print("token.txt exists?", os.path.exists('token.txt'))
+
      # Read the bot token from the file
     with open('token.txt', 'r') as file:
         bot_token = file.read().strip()
@@ -188,6 +207,7 @@ def main():
     app.add_handler(CommandHandler("duration", set_playing_duration))
     app.add_handler(CommandHandler("random", pick_random_table))
     app.add_handler(CommandHandler("generate", report_practice_plan))
+    app.add_handler(CommandHandler("test", bot_testprint))
 
     try:
         # Continuously poll for updates
@@ -197,6 +217,11 @@ def main():
         print("KeyboardInterrupt received. Exiting...")
         app.stop()
         sys.exit(0)
+    except Exception as e:
+        # Handle other exceptions gracefully
+        print(f"An error occurred: {e}")
+        app.stop()
+        sys.exit(1)
 
 if __name__ == '__main__':
     main()

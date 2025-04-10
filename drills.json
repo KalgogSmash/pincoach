@@ -6,17 +6,12 @@
     },
     {
         "name": "Nudging",
-        "description": "Try to return the ball to a specific fliipper with only nudging.",
+        "description": "Try to return the ball to a specific flipper with only nudging.",
         "default_weight": 100
     },
     {
         "name": "Ball Control",
         "description": "Only allowed to make shots from a ball that is controlled/cradled.",
-        "default_weight": 100
-    },
-    {
-        "name": "Shielding",
-        "description": "Focus on shielding drains coming from the left or right side of the playfield.",
         "default_weight": 100
     },
     {
