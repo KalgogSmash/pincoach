@@ -6,17 +6,12 @@
     },
     {
         "name": "Nudging",
-        "description": "Try to return the ball to a specific flipper with only nudging.",
+        "description": "Nudge off of everything to see the best way to get reliable feeds.",
         "default_weight": 100
     },
     {
-        "name": "Ball Control",
-        "description": "Only allowed to make shots from a ball that is controlled/cradled.",
-        "default_weight": 100
-    },
-    {
-        "name": "Passing",
-        "description": "Transfer the ball using a post pass if cradled, or perform a ski pass if the ball is rolling.",
+        "name": "Dribbling",
+        "description": "Post pass, tap pass, or shatz before each shot. Use microflips to get under control.",
         "default_weight": 100
     },
     {
