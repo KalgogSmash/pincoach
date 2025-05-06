@@ -26,20 +26,18 @@ def load_default_drills():
     try:
         with open('drills.json', 'r') as file:
             drill_dict = json.load(file)
-            return drill_dict["drills"]
+            drills =  drill_dict["drills"]
     except FileNotFoundError:
         print("drills.json file not found. Please ensure it exists.")
-        return {}
     
 def load_default_reminders():
     global reminders
     try:
         with open('drills.json', 'r') as file:
             drill_dict = json.load(file)
-            return drill_dict["reminders"]
+            reminders = drill_dict["reminders"]
     except FileNotFoundError:
         print("drills.json file not found. Please ensure it exists.")
-        return {}
 
     
 """
