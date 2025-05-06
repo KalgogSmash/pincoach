@@ -218,7 +218,7 @@ def main():
         bot_token = file.read().strip()
 
     load_default_drills()
-    load_default_reminders
+    load_default_reminders()
 
     # Create a bot instance with the bot token
     app = ApplicationBuilder().token(bot_token).build()
