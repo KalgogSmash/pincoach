@@ -1,22 +1,30 @@
-[
-    {
-        "name": "Catching",
-        "description": "Attempt to live or drop catch every ball that comes to the flippers.",
-        "default_weight": 100
-    },
-    {
-        "name": "Nudging",
-        "description": "Nudge off of everything to see the best way to get reliable feeds.",
-        "default_weight": 100
-    },
-    {
-        "name": "Dribbling",
-        "description": "Post pass, tap pass, or shatz before each shot. Use microflips to get under control.",
-        "default_weight": 100
-    },
-    {
-        "name": "Accuracy",
-        "description": "Make a specific shot 5 times in a row, then move to the next shot.",
-        "default_weight": 100
-    }
-]
+{ 
+    "drills":
+    [
+        {
+            "name": "Flipper Skills",
+            "description": "Send the ball anywhere and always use a catch or pass to get the ball under control.",
+            "default_weight": 100
+        },
+        {
+            "name": "Table Geometry",
+            "description": "Focus on key feeds and repeatable ways to return the ball. Nudging, drop/ski/post passes.",
+            "default_weight": 100
+        },
+        {
+            "name": "Accuracy",
+            "description": "Pick a specific shot and try to hit it 5x in a row, then move to a different shot.",
+            "default_weight": 100
+        }
+    ],
+    "reminders":
+    [
+        "Scan, plan, breath, focus.",
+        "It's a game, there are no stakes.",
+        "Visualize how you want the game to go.",
+        "Respond, don't react. Keep mental space.",
+        "Your body knows what to do, trust it.",
+        "Acknowledge stray thoughts and let them go."
+    ]
+
+}

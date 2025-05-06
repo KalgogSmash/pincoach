@@ -17,6 +17,7 @@ region = "reno"
 play_location = {}
 play_duration = 60 # Default play duration in minutes
 drills = []
+reminders = []
 last_random_table = ""
 
 def load_default_drills():
@@ -24,11 +25,22 @@ def load_default_drills():
     # Load the default drills from drills.json
     try:
         with open('drills.json', 'r') as file:
-            drills = json.load(file)
-            return drills
+            drill_dict = json.load(file)
+            return drill_dict["drills"]
     except FileNotFoundError:
         print("drills.json file not found. Please ensure it exists.")
         return {}
+    
+def load_default_reminders():
+    global reminders
+    try:
+        with open('drills.json', 'r') as file:
+            drill_dict = json.load(file)
+            return drill_dict["reminders"]
+    except FileNotFoundError:
+        print("drills.json file not found. Please ensure it exists.")
+        return {}
+
     
 """
 Splits the play duration into drill times rounded to the nearest 5 minutes.
@@ -146,6 +158,7 @@ async def pick_random_table(update: Update, context: ContextTypes.DEFAULT_TYPE) 
     """Pick a random table from the user's location."""
     global play_location
     global last_random_table
+    global reminders
 
     if not play_location:
         await context.bot.send_message(chat_id=update.effective_chat.id, text="Please set your playing location first using /location.")
@@ -171,12 +184,19 @@ async def pick_random_table(update: Update, context: ContextTypes.DEFAULT_TYPE) 
         random_table = None
         while (random_table == last_random_table) or (random_table is None):
             random_table = random.sample(machines_at_location, num_tables)
-        last_random_table = random_table[-1]
+        last_random_table = random_table[0]
 
         if num_tables > 1:
             await context.bot.send_message(chat_id=update.effective_chat.id, text=f"Random tables selected: {',\n'.join(random_table)}")
         else:
             await context.bot.send_message(chat_id=update.effective_chat.id, text=f"Random table selected: {random_table[0]}")
+        # Send a random reminder
+        if reminders:
+            random_reminder = random.choice(reminders)
+            await context.bot.send_message(chat_id=update.effective_chat.id, text=f"Reminder: {random_reminder}")
+        else:
+            await context.bot.send_message(chat_id=update.effective_chat.id, text="No reminders available.")
+        
     else:
         await context.bot.send_message(chat_id=update.effective_chat.id, text="No tables found at the selected location.")
 
@@ -200,6 +220,7 @@ def main():
         bot_token = file.read().strip()
 
     load_default_drills()
+    load_default_reminders
 
     # Create a bot instance with the bot token
     app = ApplicationBuilder().token(bot_token).build()
