@@ -2,28 +2,68 @@
     "drills":
     [
         {
-            "name": "Flipper Skills",
-            "description": "Send the ball anywhere and always use a catch or pass to get the ball under control.",
+            "name": "Cradling",
+            "description": "Try to bring as many shots as possible into a cradle before shooting.",
             "default_weight": 100
         },
         {
-            "name": "Table Geometry",
-            "description": "Focus on key feeds and repeatable ways to return the ball. Nudging, drop/ski/post passes.",
+            "name": "Shielding",
+            "description": "Pay special attention to shielding while the ball is out of control.",
             "default_weight": 100
         },
         {
-            "name": "Accuracy",
-            "description": "Pick a specific shot and try to hit it 5x in a row, then move to a different shot.",
+            "name": "Micro Flips/Stern Catch/Ostermeier",
+            "description": "Find the micro flip timing on this machine and use it as much as possible, along with Stern Catch and Ostermeier.",
+            "default_weight": 100
+        },
+        {
+            "name": "Post Pass",
+            "description": "Determine if post pass is possible on this machine and use it to set up specific shots.",
+            "default_weight": 100
+        },
+        {
+            "name": "Ski Pass",
+            "description": "Determine if ski pass is possible on this machine and see which returns allow for it.",
+            "default_weight": 100
+        },
+        {
+            "name": "Dead Bounce",
+            "description": "Flip less and focus on dead bounces to set up shots.",
+            "default_weight": 100
+        },
+        {
+            "name": "Drop Catch",
+            "description": "Drop catch as much as possible to determine the proper timing on this machine for normal/delayed catch. Rememeber the timing is later on older machines.",
+            "default_weight": 100
+        },
+        {
+            "name": "Slap Save",
+            "description": "Play a little riskier and go for slap saves to save center drains. Are single or double slaps better?",
+            "default_weight": 100
+        },
+        {
+            "name": "Shatzing",
+            "description": "Test whether shatzing is possible on this machine, and use it to pass the ball or save balls close to the flippers.",
+            "default_weight": 100
+        },
+        {
+            "name": "Nudging",
+            "description": "Nudge on almst all bounces, notice which feeds/slings/outlanes respond well to nudging.",
+            "default_weight": 100
+        },
+        {
+            "name": "Orbits Loop Pass",
+            "description": "Shoot orbits and see if nudges are required, or if loop passes are possible.",
             "default_weight": 100
         }
     ],
     "reminders":
     [
         "Scan, plan, breath, focus.",
-        "It's a game, there are no stakes.",
+        "Start your focus right away!",
         "Visualize how you want the game to go.",
-        "Respond, don't react. Keep mental space.",
-        "Your body knows what to do, trust it.",
+        "Missed shots happen, recover and get the next one.",
+        "Don't hold up the flipper too long!",
         "Acknowledge stray thoughts and let them go."
     ]
 
