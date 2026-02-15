@@ -59,7 +59,7 @@ def build_practice_plan(duration):
     # Create the practice plan
     practice_plan = [
         {"activity": "Warmup/Free Play", "duration": warmup_time},
-        {"activity": "Drills", "duration": drill_time, "drills": []},
+        {"activity": "Skill Anchor Drills", "duration": drill_time, "drills": []},
         {"activity": "Tournament Simulation", "duration": tournament_time},
         {"activity": "Cooldown/Free Play", "duration": cooldown_time}
     ]
