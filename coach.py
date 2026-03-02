@@ -43,24 +43,27 @@ def load_default_reminders():
 """
 Splits the play duration into drill times rounded to the nearest 5 minutes.
 The breakdown of play is as follows:
-- 1/6 of the time for warmup/free play
-- 2/6 of the time for drills
-- 2/6 of the time for tournament simulation
-- 1/6 of the time for cooldown/free play
+- 15% of the time for warmup/free play
+- 35% of the time for drills
+- 25% of the time for tournament simulation
+- 10% of the time for score maximizing
+- 15% of the time for cooldown/free play
 """
 def build_practice_plan(duration):
     global drills
     # Calculate the time for each segment of the practice plan, rounded to the nearest 5 minutes
-    warmup_time = round(duration * (1/6) / 5) * 5
-    drill_time = round(duration * (2/6) / 5) * 5
-    tournament_time = round(duration * (2/6) / 5) * 5
-    cooldown_time = round(duration * (1/6) / 5) * 5
+    warmup_time = round(duration * (.15) / 5) * 5
+    drill_time = round(duration * (.35) / 5) * 5
+    tournament_time = round(duration * (.25) / 5) * 5
+    score_time = round(duration * (.10) / 5) * 5
+    cooldown_time = round(duration * (.15) / 5) * 5
 
     # Create the practice plan
     practice_plan = [
         {"activity": "Warmup/Free Play", "duration": warmup_time},
         {"activity": "Skill Anchor Drills", "duration": drill_time, "drills": []},
         {"activity": "Tournament Simulation", "duration": tournament_time},
+        {"activity": "Score Maximizing", duration: score_time},
         {"activity": "Cooldown/Free Play", "duration": cooldown_time}
     ]
 
