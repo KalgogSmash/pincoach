@@ -63,7 +63,7 @@ def build_practice_plan(duration):
         {"activity": "Warmup/Free Play", "duration": warmup_time},
         {"activity": "Skill Anchor Drills", "duration": drill_time, "drills": []},
         {"activity": "Tournament Simulation", "duration": tournament_time},
-        {"activity": "Score Maximizing", duration: score_time},
+        {"activity": "Score Maximizing", "duration": score_time},
         {"activity": "Cooldown/Free Play", "duration": cooldown_time}
     ]
 
@@ -225,10 +225,10 @@ def main():
 
     # Create a bot instance with the bot token
     app = ApplicationBuilder().token(bot_token).build()
-    app.add_handler(CommandHandler("location", set_playing_location))
-    app.add_handler(CommandHandler("duration", set_playing_duration))
-    app.add_handler(CommandHandler("random", pick_random_table))
-    app.add_handler(CommandHandler("generate", report_practice_plan))
+    app.add_handler(CommandHandler(("location", "l"), set_playing_location))
+    app.add_handler(CommandHandler(("duration", "d", "t"), set_playing_duration))
+    app.add_handler(CommandHandler(("random", "r"), pick_random_table))
+    app.add_handler(CommandHandler(("generate", "g"), report_practice_plan))
     app.add_handler(CommandHandler("test", bot_testprint))
 
     try:
