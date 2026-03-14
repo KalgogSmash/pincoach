@@ -288,6 +288,7 @@ def main():
 
     load_default_drills()
     load_default_reminders()
+    load_machine_notes()
 
     # Create a bot instance with the bot token
     app = ApplicationBuilder().token(bot_token).build()
