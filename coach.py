@@ -244,11 +244,10 @@ async def print_machine_tips(update: Update, context: ContextTypes.DEFAULT_TYPE)
     
     if machine_key:
         tips = machine_notes[machine_key]["tips"]
-        message = f"Tips for {machine_name}:\n"
+        message = f"Tips for {lookup_name}:\n"
         for tip in tips:
             # If the tip is location specific, and we are at that location, or of it is a general tip, print it
-            if "location" in tip:
-                if play_location and "name" in play_location and tip["location"] in play_location["name"]:
+            if "location" in tip and play_location and "name" in play_location and tip["locations"] in play_location["name"]:
                     message += f"- ({tip['location']}) {tip['text']}\n"
             else:
                 message += f"- {tip['text']}\n"
