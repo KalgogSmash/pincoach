@@ -155,6 +155,16 @@ async def report_practice_plan(update: Update, context: ContextTypes.DEFAULT_TYP
                 message += f"\n- {drill['drill']['name']} on {drill['table']}. {drill['drill']['description']}"
         await context.bot.send_message(chat_id=update.effective_chat.id, text=message)
 
+async def list_all_drills(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """List all the potential drills"""
+    global drills
+    if drills:
+        message = "All drill options:\n"
+        for drill in drills:
+            message += f"- {drill['name']}: {drill['description']}\n"
+        await context.bot.send_message(chat_id=update.effective_chat.id, text=message)
+
+
 async def pick_random_table(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Pick a random table from the user's location."""
     global play_location
@@ -206,6 +216,17 @@ async def bot_testprint(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
     # This function is just for testing purposes
     await context.bot.send_message(chat_id=update.effective_chat.id, text="Test print from bot.py")
 
+async def print_help(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    help_message = (
+        "Available commands:\n"
+        "/location or /l [location] - Set your playing location\n"
+        "/duration or /d or /t [minutes] - Set your playing duration\n"
+        "/random or /r [number] - Pick a random table from your location (optionally specify how many)\n"
+        "/generate or /g - Generate a practice plan based on your location and duration\n"
+        "/alldrills or /ad - List all potential drills\n"
+        "/help or /h - Show this help message"
+    )
+    await context.bot.send_message(chat_id=update.effective_chat.id, text=help_message)
 
 def main():
     logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -229,6 +250,8 @@ def main():
     app.add_handler(CommandHandler(("duration", "d", "t"), set_playing_duration))
     app.add_handler(CommandHandler(("random", "r"), pick_random_table))
     app.add_handler(CommandHandler(("generate", "g"), report_practice_plan))
+    app.add_handler(CommandHandler(("alldrills", "ad"), list_all_drills))
+    app.add_handler(CommandHandler(("help", "h"), print_help))
     app.add_handler(CommandHandler("test", bot_testprint))
 
     try:
