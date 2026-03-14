@@ -47,7 +47,6 @@ def load_machine_notes():
             machine_notes = json.load(file)
     except FileNotFoundError:
         print("machine_notes.json file not found. Please ensure it exists.")
-        return {}
 
 """
 Splits the play duration into drill times rounded to the nearest 5 minutes.
@@ -235,8 +234,16 @@ async def print_machine_tips(update: Update, context: ContextTypes.DEFAULT_TYPE)
         return
     
     # Check to see if the machine name is in the machine notes, if so print the tips
-    if machine_name in machine_notes:
-        tips = machine_notes[machine_name]["tips"]
+    # Perform case-insensitive search, ignoring anything in parentheses
+    lookup_name = machine_name.split('(')[0].strip()
+    machine_key = None
+    for key in machine_notes:
+        if key.lower() == lookup_name.lower():
+            machine_key = key
+            break
+    
+    if machine_key:
+        tips = machine_notes[machine_key]["tips"]
         message = f"Tips for {machine_name}:\n"
         for tip in tips:
             # If the tip is location specific, and we are at that location, or of it is a general tip, print it
