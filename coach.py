@@ -207,7 +207,8 @@ async def pick_random_table(update: Update, context: ContextTypes.DEFAULT_TYPE) 
         last_random_table = random_table[0]
 
         if num_tables > 1:
-            await context.bot.send_message(chat_id=update.effective_chat.id, text=f"Random tables selected: {',\n'.join(random_table)}")
+            tables_text = ',\n'.join(random_table)
+            await context.bot.send_message(chat_id=update.effective_chat.id, text=f"Random tables selected: {tables_text}")
         else:
             await context.bot.send_message(chat_id=update.effective_chat.id, text=f"Random table selected: {random_table[0]}")
         # Send a random reminder
@@ -248,7 +249,7 @@ async def print_machine_tips(update: Update, context: ContextTypes.DEFAULT_TYPE)
         message = f"Tips for {lookup_name}:\n"
         for tip in tips:
             # If the tip is location specific, and we are at that location, or of it is a general tip, print it
-            if "location" in tip and play_location and "name" in play_location and tip["locations"] in play_location["name"]:
+            if "location" in tip and play_location and "name" in play_location and tip["location"] in play_location["name"]:
                     message += f"- ({tip['location']}) {tip['text']}\n"
             else:
                 message += f"- {tip['text']}\n"
