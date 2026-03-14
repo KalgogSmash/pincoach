@@ -19,6 +19,7 @@ play_duration = 60 # Default play duration in minutes
 drills = []
 reminders = []
 last_random_table = ""
+machine_notes = {}
 
 def load_default_drills():
     global drills
@@ -39,7 +40,15 @@ def load_default_reminders():
     except FileNotFoundError:
         print("drills.json file not found. Please ensure it exists.")
 
-    
+def load_machine_notes():
+    global machine_notes
+    try:
+        with open('machine_notes.json', 'r') as file:
+            machine_notes = json.load(file)
+    except FileNotFoundError:
+        print("machine_notes.json file not found. Please ensure it exists.")
+        return {}
+
 """
 Splits the play duration into drill times rounded to the nearest 5 minutes.
 The breakdown of play is as follows:
@@ -211,6 +220,35 @@ async def pick_random_table(update: Update, context: ContextTypes.DEFAULT_TYPE) 
     else:
         await context.bot.send_message(chat_id=update.effective_chat.id, text="No tables found at the selected location.")
 
+async def print_machine_tips(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Print machine-specific tips for the user's location."""
+    global play_location
+
+    # Get the machine name from the first argument, otherwise grab it from the last random table
+    if context.args:
+        machine_name = ' '.join(context.args)
+    elif last_random_table:
+        machine_name = last_random_table
+    #otherwise print an error
+    else:
+        await context.bot.send_message(chat_id=update.effective_chat.id, text="Please provide a machine name or pick a random table first using /random.")
+        return
+    
+    # Check to see if the machine name is in the machine notes, if so print the tips
+    if machine_name in machine_notes:
+        tips = machine_notes[machine_name]["tips"]
+        message = f"Tips for {machine_name}:\n"
+        for tip in tips:
+            # If the tip is location specific, and we are at that location, or of it is a general tip, print it
+            if "location" in tip:
+                if play_location and "name" in play_location and tip["location"] in play_location["name"]:
+                    message += f"- ({tip['location']}) {tip['text']}\n"
+            else:
+                message += f"- {tip['text']}\n"
+        await context.bot.send_message(chat_id=update.effective_chat.id, text=message)
+    else:
+        await context.bot.send_message(chat_id=update.effective_chat.id, text=f"No tips found for {machine_name}.")
+
 async def bot_testprint(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     print("Test print from bot.py")
     # This function is just for testing purposes
@@ -247,10 +285,11 @@ def main():
     # Create a bot instance with the bot token
     app = ApplicationBuilder().token(bot_token).build()
     app.add_handler(CommandHandler(("location", "l"), set_playing_location))
-    app.add_handler(CommandHandler(("duration", "d", "t"), set_playing_duration))
+    app.add_handler(CommandHandler(("duration", "d"), set_playing_duration))
     app.add_handler(CommandHandler(("random", "r"), pick_random_table))
     app.add_handler(CommandHandler(("generate", "g"), report_practice_plan))
     app.add_handler(CommandHandler(("alldrills", "ad"), list_all_drills))
+    app.add_handler(CommandHandler(("tips", "t"), print_machine_tips))
     app.add_handler(CommandHandler(("help", "h"), print_help))
     app.add_handler(CommandHandler("test", bot_testprint))
 
