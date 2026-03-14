@@ -116,7 +116,8 @@ async def set_playing_location(update: Update, context: ContextTypes.DEFAULT_TYP
             # Here you would typically save the location to a database or user profile
             await context.bot.send_message(chat_id=update.effective_chat.id, text=f"Playing location set to: {play_location['name']}")
             #List the tables at the location
-            await context.bot.send_message(chat_id=update.effective_chat.id, text=f"Tables at {location}:\n{',\n'.join(machines_at_location)}")
+            tables_list = ',\n'.join(machines_at_location)
+            await context.bot.send_message(chat_id=update.effective_chat.id, text=f"Tables at {location}:\n{tables_list}")
         else:
             await context.bot.send_message(chat_id=update.effective_chat.id, text="Location not found. Please try again.")
     else:
