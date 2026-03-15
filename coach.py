@@ -43,7 +43,7 @@ def load_default_reminders():
 def load_machine_notes():
     global machine_notes
     try:
-        with open('machine_notes.json', 'r') as file:
+        with open('machine_notes_submodule/machine_notes.json', 'r') as file:
             machine_notes = json.load(file)
     except FileNotFoundError:
         print("machine_notes.json file not found. Please ensure it exists.")
@@ -51,7 +51,7 @@ def load_machine_notes():
 def save_machine_notes():
     global machine_notes
     try:
-        with open('machine_notes.json', 'w') as file:
+        with open('machine_notes_submodule/machine_notes.json', 'w') as file:
             json.dump(machine_notes, file, indent=2)
     except Exception as e:
         print(f"Error saving machine_notes.json: {e}")

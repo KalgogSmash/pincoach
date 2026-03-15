@@ -1,0 +1,3 @@
+[submodule "machine_notes_submodule"]
+	path = machine_notes_submodule
+	url = https://github.com/KalgogSmash/pincoach-machine-notes.git
