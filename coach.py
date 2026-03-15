@@ -18,7 +18,7 @@ play_location = {}
 play_duration = 60 # Default play duration in minutes
 drills = []
 reminders = []
-last_random_table = ""
+current_machine = ""
 machine_notes = {}
 
 def load_default_drills():
@@ -123,6 +123,34 @@ async def set_playing_location(update: Update, context: ContextTypes.DEFAULT_TYP
     else:
         await context.bot.send_message(chat_id=update.effective_chat.id, text="Please provide a location.")
 
+"""Set the current machine being played."""
+async def set_current_machine(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    global play_location, current_machine
+
+    if not play_location:
+        await context.bot.send_message(chat_id=update.effective_chat.id, text="Please set your playing location first using /location.")
+        return
+
+    if context.args:
+        machine_input = ' '.join(context.args).lower()
+        machines_at_location = pb_map_api.get_machines_at_location(play_location)
+        
+        # Weak match: find machine if input is within machine name (case insensitive)
+        matched_machine = None
+        for machine in machines_at_location:
+            if machine_input in machine.lower():
+                matched_machine = machine
+                break
+        
+        if matched_machine:
+            current_machine = matched_machine
+            await context.bot.send_message(chat_id=update.effective_chat.id, text=f"Current machine set to: {current_machine}")
+            await lookup_and_print_tips(update, context, current_machine)
+        else:
+            await context.bot.send_message(chat_id=update.effective_chat.id, text=f"Machine '{' '.join(context.args)}' not found at {play_location['name']}.")
+    else:
+        await context.bot.send_message(chat_id=update.effective_chat.id, text="Please provide a machine name.")
+
 """Set the playing duration for the user."""
 async def set_playing_duration(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     global play_duration
@@ -177,7 +205,7 @@ async def list_all_drills(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
 async def pick_random_table(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Pick a random table from the user's location."""
     global play_location
-    global last_random_table
+    global current_machine
     global reminders
 
     if not play_location:
@@ -202,9 +230,9 @@ async def pick_random_table(update: Update, context: ContextTypes.DEFAULT_TYPE) 
     if machines_at_location:
         #randomize a table until it is different from the last one
         random_table = None
-        while (random_table == last_random_table) or (random_table is None):
+        while (random_table == current_machine) or (random_table is None):
             random_table = random.sample(machines_at_location, num_tables)
-        last_random_table = random_table[0]
+        current_machine = random_table[0]
 
         if num_tables > 1:
             tables_text = ',\n'.join(random_table)
@@ -221,21 +249,10 @@ async def pick_random_table(update: Update, context: ContextTypes.DEFAULT_TYPE) 
     else:
         await context.bot.send_message(chat_id=update.effective_chat.id, text="No tables found at the selected location.")
 
-async def print_machine_tips(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Print machine-specific tips for the user's location."""
-    global play_location
-
-    # Get the machine name from the first argument, otherwise grab it from the last random table
-    if context.args:
-        machine_name = ' '.join(context.args)
-    elif last_random_table:
-        machine_name = last_random_table
-    #otherwise print an error
-    else:
-        await context.bot.send_message(chat_id=update.effective_chat.id, text="Please provide a machine name or pick a random table first using /random.")
-        return
+async def lookup_and_print_tips(update: Update, context: ContextTypes.DEFAULT_TYPE, machine_name: str) -> None:
+    """Helper function to print tips for a given machine name."""
+    global play_location, machine_notes
     
-    # Check to see if the machine name is in the machine notes, if so print the tips
     # Perform case-insensitive search, ignoring anything in parentheses
     lookup_name = machine_name.split('(')[0].strip()
     machine_key = None
@@ -256,6 +273,22 @@ async def print_machine_tips(update: Update, context: ContextTypes.DEFAULT_TYPE)
         await context.bot.send_message(chat_id=update.effective_chat.id, text=message)
     else:
         await context.bot.send_message(chat_id=update.effective_chat.id, text=f"No tips found for {machine_name}.")
+
+async def print_machine_tips(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Print machine-specific tips for the user's location."""
+    global play_location, current_machine
+
+    # Get the machine name from the first argument, otherwise grab it from the last random table
+    if context.args:
+        machine_name = ' '.join(context.args)
+    elif current_machine:
+        machine_name = current_machine
+    #otherwise print an error
+    else:
+        await context.bot.send_message(chat_id=update.effective_chat.id, text="Please provide a machine name or pick a random table first using /random.")
+        return
+    
+    await lookup_and_print_tips(update, context, machine_name)
 
 async def bot_testprint(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     print("Test print from bot.py")
@@ -294,6 +327,7 @@ def main():
     # Create a bot instance with the bot token
     app = ApplicationBuilder().token(bot_token).build()
     app.add_handler(CommandHandler(("location", "l"), set_playing_location))
+    app.add_handler(CommandHandler(("machine", "m"), set_current_machine))
     app.add_handler(CommandHandler(("duration", "d"), set_playing_duration))
     app.add_handler(CommandHandler(("random", "r"), pick_random_table))
     app.add_handler(CommandHandler(("generate", "g"), report_practice_plan))
