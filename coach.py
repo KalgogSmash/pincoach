@@ -48,6 +48,14 @@ def load_machine_notes():
     except FileNotFoundError:
         print("machine_notes.json file not found. Please ensure it exists.")
 
+def save_machine_notes():
+    global machine_notes
+    try:
+        with open('machine_notes.json', 'w') as file:
+            json.dump(machine_notes, file, indent=2)
+    except Exception as e:
+        print(f"Error saving machine_notes.json: {e}")
+
 """
 Splits the play duration into drill times rounded to the nearest 5 minutes.
 The breakdown of play is as follows:
@@ -290,6 +298,62 @@ async def print_machine_tips(update: Update, context: ContextTypes.DEFAULT_TYPE)
     
     await lookup_and_print_tips(update, context, machine_name)
 
+async def add_general_tip(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Add a general tip to the current machine."""
+    global current_machine, machine_notes
+
+    if not current_machine:
+        await context.bot.send_message(chat_id=update.effective_chat.id, text="Please set a current machine first using /machine.")
+        return
+
+    if not context.args:
+        await context.bot.send_message(chat_id=update.effective_chat.id, text="Please provide a tip to add.")
+        return
+
+    tip_text = ' '.join(context.args)
+    
+    # Add machine to machine_notes if it doesn't exist
+    if current_machine not in machine_notes:
+        machine_notes[current_machine] = {"tips": []}
+    
+    # Add the tip
+    machine_notes[current_machine]["tips"].append({"text": tip_text})
+    save_machine_notes()
+    
+    await context.bot.send_message(chat_id=update.effective_chat.id, text=f"General tip added to {current_machine}.")
+
+async def add_location_tip(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Add a location-specific tip to the current machine."""
+    global current_machine, play_location, machine_notes
+
+    if not current_machine:
+        await context.bot.send_message(chat_id=update.effective_chat.id, text="Please set a current machine first using /machine.")
+        return
+
+    if not play_location:
+        await context.bot.send_message(chat_id=update.effective_chat.id, text="Please set your playing location first using /location.")
+        return
+
+    if not context.args:
+        await context.bot.send_message(chat_id=update.effective_chat.id, text="Please provide a tip to add.")
+        return
+
+    tip_text = ' '.join(context.args)
+    
+    # Add machine to machine_notes if it doesn't exist
+    if current_machine not in machine_notes:
+        machine_notes[current_machine] = {"tips": []}
+    
+    # Add the location-specific tip
+    machine_notes[current_machine]["tips"].append({
+        "text": tip_text,
+        "location_specific": True,
+        "location": play_location["name"]
+    })
+    save_machine_notes()
+    
+    await context.bot.send_message(chat_id=update.effective_chat.id, text=f"Location-specific tip added to {current_machine} for {play_location['name']}.")
+
 async def bot_testprint(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     print("Test print from bot.py")
     # This function is just for testing purposes
@@ -303,6 +367,10 @@ async def print_help(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
         "/random or /r [number] - Pick a random table from your location (optionally specify how many)\n"
         "/generate or /g - Generate a practice plan based on your location and duration\n"
         "/alldrills or /ad - List all potential drills\n"
+        "/tips or /t [machine name] - Get tips for a specific machine (or the current machine if no name is provided)\n"
+        "/machine or /m [machine name] - Set the current machine being played and get tips for it\n"
+        "/gtip [tip text] - Add a general tip for the current machine\n"
+        "/ltip [tip text] - Add a location-specific tip for the current machine\n"
         "/help or /h - Show this help message"
     )
     await context.bot.send_message(chat_id=update.effective_chat.id, text=help_message)
@@ -333,6 +401,8 @@ def main():
     app.add_handler(CommandHandler(("generate", "g"), report_practice_plan))
     app.add_handler(CommandHandler(("alldrills", "ad"), list_all_drills))
     app.add_handler(CommandHandler(("tips", "t"), print_machine_tips))
+    app.add_handler(CommandHandler("gtip", add_general_tip))
+    app.add_handler(CommandHandler("ltip", add_location_tip))
     app.add_handler(CommandHandler(("help", "h"), print_help))
     app.add_handler(CommandHandler("test", bot_testprint))
 
