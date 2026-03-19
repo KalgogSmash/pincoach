@@ -339,13 +339,15 @@ async def add_location_tip(update: Update, context: ContextTypes.DEFAULT_TYPE) -
         return
 
     tip_text = ' '.join(context.args)
+
+    machine_trimmed = current_machine.split('(')[0].strip()
     
     # Add machine to machine_notes if it doesn't exist
-    if current_machine not in machine_notes:
-        machine_notes[current_machine] = {"tips": []}
+    if machine_trimmed not in machine_notes:
+        machine_notes[machine_trimmed] = {"tips": []}
     
     # Add the location-specific tip
-    machine_notes[current_machine]["tips"].append({
+    machine_notes[machine_trimmed]["tips"].append({
         "text": tip_text,
         "location_specific": True,
         "location": play_location["name"]
